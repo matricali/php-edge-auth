@@ -1,0 +1,30 @@
+{
+    "name": "jorge-matricali/php-edge-auth",
+    "description": "Edge Auth token generator",
+    "keywords": ["edge", "auth", "security", "akamai"],
+    "type": "library",
+    "require": {
+        "php": ">=5.3.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~5.0",
+        "squizlabs/php_codesniffer": "~1.5",
+        "satooshi/php-coveralls": "~1.0"
+    },
+    "autoload": {
+        "classmap": [
+            "src/"
+        ]
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jorge Matricali",
+            "email": "jorgematricali@gmail.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/jorge-matricali/php-edge-auth/issues",
+        "source": "https://github.com/jorge-matricali/php-edge-auth"
+    }
+}
