@@ -215,6 +215,9 @@ class TokenAuth
 
     public function setData($data)
     {
+        if (!is_string($data) && !is_numeric($data)) {
+            throw new ParameterException('Invalid data value. Must be an string.');
+        }
         $this->data = $data;
     }
 
@@ -234,6 +237,9 @@ class TokenAuth
 
     public function setSalt($salt)
     {
+        if (!is_string($salt) && !is_numeric($salt)) {
+            throw new ParameterException('Invalid salt value. Must be an string.');
+        }
         $this->salt = $salt;
     }
 
@@ -253,11 +259,10 @@ class TokenAuth
 
     public function setKey($key)
     {
-        //verify the key is valid hex
         if (preg_match('/^[a-fA-F0-9]+$/', $key) && (strlen($key) % 2) == 0) {
             $this->key = $key;
         } else {
-            throw new ParameterException('Key must be a hex string (a-f,0-9 and even number of chars).');
+            throw new ParameterException('Key must be a hex string (a-f, 0-9 and even number of chars).');
         }
     }
 
