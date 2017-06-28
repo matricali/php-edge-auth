@@ -105,11 +105,14 @@ class TokenAuthTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('st=' . 12345 . $auth->getFieldDelimiter(), $auth->getStartTimeField());
 
         $auth = new TokenAuth();
-        $this->expectException(ParameterException::class);
-        $auth->setStartTime('');
+        try {
+            $auth->setStartTime('');
+        } catch (\Exception $e1) {
+        }
+        $this->assertInstanceOf('JorgeMatricali\Security\EdgeAuth\Exceptions\ParameterException', $e1);
         $this->assertEquals(0, $auth->getStartTime());
         $this->assertEquals(time(), $gstv->invoke($auth));
-        $this->assertEquals('st=' . time() . $auth->getFieldDelimiter(), $auth->getStartTimeField());
+        $this->assertEquals('', $auth->getStartTimeField());
     }
 
     public function testWindow()
@@ -122,12 +125,18 @@ class TokenAuthTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(500, $auth->getWindow());
 
         $auth = new TokenAuth();
-        $this->expectException(ParameterException::class);
-        $auth->setWindow('abc');
+        try {
+            $auth->setWindow('abc');
+        } catch (\Exception $e1) {
+        }
+        $this->assertInstanceOf('JorgeMatricali\Security\EdgeAuth\Exceptions\ParameterException', $e1);
         $this->assertEquals(300, $auth->getWindow());
 
-        $this->expectException(ParameterException::class);
-        $auth->setWindow(0);
+        try {
+            $auth->setWindow(0);
+        } catch (\Exception $e2) {
+        }
+        $this->assertInstanceOf('JorgeMatricali\Security\EdgeAuth\Exceptions\ParameterException', $e2);
         $this->assertEquals(300, $auth->getWindow());
     }
 
@@ -144,8 +153,12 @@ class TokenAuthTest extends \PHPUnit_Framework_TestCase
         $auth = new TokenAuth();
         $auth->setUrl('https://example.com/protected/resource');
         $this->assertEquals('', $auth->getAclField()); // If we have an URL we shouldn't have an ACL
-        $this->expectException(ParameterException::class);
-        $auth->setAcl('test');
+
+        try {
+            $auth->setAcl('test');
+        } catch (\Exception $e1) {
+        }
+        $this->assertInstanceOf('JorgeMatricali\Security\EdgeAuth\Exceptions\ParameterException', $e1);
     }
 
     public function testUrl()
@@ -161,8 +174,12 @@ class TokenAuthTest extends \PHPUnit_Framework_TestCase
         $auth = new TokenAuth();
         $auth->setAcl('test');
         $this->assertEquals('', $auth->getUrlField()); // If we have an URL we shouldn't have an ACL
-        $this->expectException(ParameterException::class);
-        $auth->setUrl('https://example.com/');
+
+        try {
+            $auth->setUrl('https://example.com/');
+        } catch (\Exception $e1) {
+        }
+        $this->assertInstanceOf('JorgeMatricali\Security\EdgeAuth\Exceptions\ParameterException', $e1);
     }
 
     public function testSession()
