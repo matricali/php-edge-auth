@@ -207,11 +207,122 @@ class TokenAuthTest extends \PHPUnit_Framework_TestCase
 
         try {
             $auth->setSessionId(new \StdClass());
+        } catch (\Exception $e2) {
+        }
+        $this->assertInstanceOf('JorgeMatricali\Security\EdgeAuth\Exceptions\ParameterException', $e2);
+        $this->assertEquals('', $auth->getSessionId());
+        $this->assertEquals('', $auth->getSessionIdField());
+    }
+
+    public function testData()
+    {
+        $auth = new TokenAuth();
+        $this->assertEquals('', $auth->getData());
+        $this->assertEquals('', $auth->getDataField());
+
+        $auth->setData('e10adc3949ba59abbe56e057f20f883e');
+        $this->assertEquals('e10adc3949ba59abbe56e057f20f883e', $auth->getData());
+        $this->assertEquals('data=e10adc3949ba59abbe56e057f20f883e' . $auth->getFieldDelimiter(), $auth->getDataField());
+
+        $auth->setData(123456778);
+        $this->assertEquals('123456778', $auth->getData());
+        $this->assertEquals('data=123456778' . $auth->getFieldDelimiter(), $auth->getDataField());
+
+        $auth = new TokenAuth();
+        try {
+            $auth->setData(array());
         } catch (\Exception $e1) {
         }
         $this->assertInstanceOf('JorgeMatricali\Security\EdgeAuth\Exceptions\ParameterException', $e1);
-        $this->assertEquals('', $auth->getSessionId());
-        $this->assertEquals('', $auth->getSessionIdField());
+        $this->assertEquals('', $auth->getData());
+        $this->assertEquals('', $auth->getDataField());
+
+        try {
+            $auth->setData(new \StdClass());
+        } catch (\Exception $e2) {
+        }
+        $this->assertInstanceOf('JorgeMatricali\Security\EdgeAuth\Exceptions\ParameterException', $e2);
+        $this->assertEquals('', $auth->getData());
+        $this->assertEquals('', $auth->getDataField());
+    }
+
+    public function testSalt()
+    {
+        $auth = new TokenAuth();
+        $this->assertEquals('', $auth->getSalt());
+        $this->assertEquals('', $auth->getSaltField());
+
+        $auth->setSalt('s4lt');
+        $this->assertEquals('s4lt', $auth->getSalt());
+        $this->assertEquals('salt=s4lt' . $auth->getFieldDelimiter(), $auth->getSaltField());
+
+        $auth->setSalt(123456778);
+        $this->assertEquals('123456778', $auth->getSalt());
+        $this->assertEquals('salt=123456778' . $auth->getFieldDelimiter(), $auth->getSaltField());
+
+        $auth = new TokenAuth();
+        try {
+            $auth->setSalt(array());
+        } catch (\Exception $e1) {
+        }
+        $this->assertInstanceOf('JorgeMatricali\Security\EdgeAuth\Exceptions\ParameterException', $e1);
+        $this->assertEquals('', $auth->getSalt());
+        $this->assertEquals('', $auth->getSaltField());
+
+        try {
+            $auth->setSalt(new \StdClass());
+        } catch (\Exception $e2) {
+        }
+        $this->assertInstanceOf('JorgeMatricali\Security\EdgeAuth\Exceptions\ParameterException', $e2);
+        $this->assertEquals('', $auth->getSalt());
+        $this->assertEquals('', $auth->getSaltField());
+    }
+
+    public function testKey()
+    {
+        $auth = new TokenAuth();
+        $this->assertEquals('aabbccddeeff00112233445566778899', $auth->getKey());
+
+        $auth->setKey('abcd1234');
+        $this->assertEquals('abcd1234', $auth->getKey());
+
+        $auth = new TokenAuth();
+        try {
+            $auth->setKey('zxvft');
+        } catch (\Exception $e1) {
+        }
+        $this->assertInstanceOf('JorgeMatricali\Security\EdgeAuth\Exceptions\ParameterException', $e1);
+        $this->assertEquals('aabbccddeeff00112233445566778899', $auth->getKey());
+
+        try {
+            $auth->setKey('abcd1234f'); // Must be an even number of characters
+        } catch (\Exception $e2) {
+        }
+        $this->assertInstanceOf('JorgeMatricali\Security\EdgeAuth\Exceptions\ParameterException', $e2);
+        $this->assertEquals('aabbccddeeff00112233445566778899', $auth->getKey());
+    }
+
+    public function testFieldDelimiter()
+    {
+        $auth = new TokenAuth();
+        $this->assertEquals('~', $auth->getFieldDelimiter());
+
+        $auth->setFieldDelimiter('|');
+        $this->assertEquals('|', $auth->getFieldDelimiter());
+    }
+
+    public function testEarlyUrlEncoding()
+    {
+        $encode = new \ReflectionMethod('JorgeMatricali\Security\EdgeAuth\TokenAuth', 'encode');
+        $encode->setAccessible(true);
+
+        $auth = new TokenAuth();
+        $this->assertFalse($auth->getEarlyUrlEncoding());
+        $this->assertEquals('test ', $encode->invoke($auth, 'test '));
+
+        $auth->setEarlyUrlEncoding(true);
+        $this->assertTrue($auth->getEarlyUrlEncoding());
+        $this->assertEquals('test%20', $encode->invoke($auth, 'test '));
     }
 
     public function testSha256()
