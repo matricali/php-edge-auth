@@ -22,11 +22,15 @@ SOFTWARE.
 
 namespace JorgeMatricali\Security\EdgeAuth;
 
-use JorgeMatricali\Security\EdgeAuth\ParameterException;
+use JorgeMatricali\Security\EdgeAuth\Exceptions\ParameterException;
 
-class Config
+class TokenAuth
 {
-    protected $algo = 'SHA256';
+    const ALGORITHM_SHA256 = 'sha256';
+    const ALGORITHM_SHA1 = 'sha1';
+    const ALGORITHM_MD5 = 'md5';
+
+    protected $algorithm = 'SHA256';
     protected $ip = '';
     protected $start_time = 0;
     protected $window = 300;
@@ -48,32 +52,34 @@ class Config
         return $val;
     }
 
-    public function set_algo($algo)
+    public function setAlgorithm($algorithm)
     {
-        if (in_array($algo, array('sha256', 'sha1', 'md5'))) {
-            $this->algo = $algo;
+        if (in_array($algorithm, array('sha256', 'sha1', 'md5'))) {
+            $this->algorithm = $algorithm;
         } else {
-            throw new Akamai_EdgeAuth_ParameterException('Invalid algorithme, must be one of "sha256", "sha1" or "md5"');
+            throw new ParameterException('Invalid algorithm, must be one of "sha256", "sha1" or "md5".');
         }
     }
 
-    public function get_algo()
+    public function getAlgorithm()
     {
-        return $this->algo;
+        return $this->algorithm;
     }
 
-    public function set_ip($ip)
+    public function setIp($ip)
     {
-        // @TODO: Validate IPV4 & IPV6 addrs
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            throw new ParameterException('Invalid IP, must be a valid IPv4 or IPv4 address.');
+        }
         $this->ip = $ip;
     }
 
-    public function get_ip()
+    public function getIp()
     {
         return $this->ip;
     }
 
-    public function get_ip_field()
+    public function getIpField()
     {
         if ($this->ip != '') {
             return 'ip='.$this->ip.$this->field_delimiter;
@@ -82,7 +88,7 @@ class Config
         return '';
     }
 
-    public function set_start_time($start_time)
+    public function setStartTime($start_time)
     {
         // verify starttime is sane
         if (strcasecmp($start_time, 'now') == 0) {
@@ -91,17 +97,17 @@ class Config
             if (is_numeric($start_time) && $start_time > 0 && $start_time < 4294967295) {
                 $this->start_time = 0 + $start_time; // faster then intval
             } else {
-                throw new Akamai_EdgeAuth_ParameterException('start time input invalid or out of range');
+                throw new ParameterException('start time input invalid or out of range');
             }
         }
     }
 
-    public function get_start_time()
+    public function getStartTime()
     {
         return $this->start_time;
     }
 
-    protected function get_start_time_value()
+    protected function getStartTimeValue()
     {
         if ($this->start_time > 0) {
             return $this->start_time;
@@ -110,49 +116,48 @@ class Config
         }
     }
 
-    public function get_start_time_field()
+    public function getStartTimeField()
     {
         if (is_numeric($this->start_time) && $this->start_time > 0 && $this->start_time < 4294967295) {
-            return 'st='.$this->get_start_time_value().$this->field_delimiter;
+            return 'st='.$this->getStartTimeValue().$this->field_delimiter;
         } else {
             return '';
         }
     }
 
-    public function set_window($window)
+    public function setWindow($window)
     {
-        // verify window is sane
         if (is_numeric($window) && $window > 0) {
-            $this->window = 0 + $window; // faster then intval
+            $this->window = 0 + $window; // Faster then intval()
         } else {
-            throw new Akamai_EdgeAuth_ParameterException('window input invalid');
+            throw new ParameterException('Invalid window value.');
         }
     }
 
-    public function get_window()
+    public function getWindow()
     {
         return $this->window;
     }
 
-    public function get_expr_field()
+    public function getExprField()
     {
-        return 'exp='.($this->get_start_time_value() + $this->window).$this->field_delimiter;
+        return 'exp='.($this->getStartTimeValue() + $this->window).$this->field_delimiter;
     }
 
-    public function set_acl($acl)
+    public function setAcl($acl)
     {
         if ($this->url != '') {
-            throw new Akamai_EdgeAuth_ParameterException('Cannot set both an ACL and a URL at the same time');
+            throw new ParameterException('Cannot set both an ACL and a URL at the same time.');
         }
         $this->acl = $acl;
     }
 
-    public function get_acl()
+    public function getAcl()
     {
         return $this->acl;
     }
 
-    public function get_acl_field()
+    public function getAclField()
     {
         if ($this->acl) {
             return 'acl='.$this->encode($this->acl).$this->field_delimiter;
@@ -164,20 +169,20 @@ class Config
         return '';
     }
 
-    public function set_url($url)
+    public function setUrl($url)
     {
         if ($this->acl) {
-            throw new Akamai_EdgeAuth_ParameterException('Cannot set both an ACL and a URL at the same time');
+            throw new ParameterException('Cannot set both an ACL and a URL at the same time.');
         }
         $this->url = $url;
     }
 
-    public function get_url()
+    public function getUrl()
     {
         return $this->url;
     }
 
-    public function get_url_field()
+    public function getUrlField()
     {
         if ($this->url && !$this->acl) {
             return 'url='.$this->encode($this->url).$this->field_delimiter;
@@ -186,17 +191,20 @@ class Config
         return '';
     }
 
-    public function set_session_id($session_id)
+    public function setSessionId($session_id)
     {
+        if (!is_string($session_id) && !is_numeric($session_id)) {
+            throw new ParameterException('Invalid session_id value. Must be an string.');
+        }
         $this->session_id = $session_id;
     }
 
-    public function get_session_id()
+    public function getSessionId()
     {
         return $this->session_id;
     }
 
-    public function get_session_id_field()
+    public function getSessionIdField()
     {
         if ($this->session_id) {
             return 'id='.$this->session_id.$this->field_delimiter;
@@ -205,17 +213,17 @@ class Config
         return '';
     }
 
-    public function set_data($data)
+    public function setData($data)
     {
         $this->data = $data;
     }
 
-    public function get_data()
+    public function getData()
     {
         return $this->data;
     }
 
-    public function get_data_field()
+    public function getDataField()
     {
         if ($this->data) {
             return 'data='.$this->data.$this->field_delimiter;
@@ -224,17 +232,17 @@ class Config
         return '';
     }
 
-    public function set_salt($salt)
+    public function setSalt($salt)
     {
         $this->salt = $salt;
     }
 
-    public function get_salt()
+    public function getSalt()
     {
         return $this->salt;
     }
 
-    public function get_salt_field()
+    public function getSaltField()
     {
         if ($this->salt) {
             return 'salt='.$this->salt.$this->field_delimiter;
@@ -243,38 +251,69 @@ class Config
         return '';
     }
 
-    public function set_key($key)
+    public function setKey($key)
     {
         //verify the key is valid hex
         if (preg_match('/^[a-fA-F0-9]+$/', $key) && (strlen($key) % 2) == 0) {
             $this->key = $key;
         } else {
-            throw new ParameterException('Key must be a hex string (a-f,0-9 and even number of chars)');
+            throw new ParameterException('Key must be a hex string (a-f,0-9 and even number of chars).');
         }
     }
 
-    public function get_key()
+    public function getKey()
     {
         return $this->key;
     }
 
-    public function set_field_delimiter($field_delimiter)
+    public function setFieldDelimiter($field_delimiter)
     {
         $this->field_delimiter = $field_delimiter;
     }
 
-    public function get_field_delimiter()
+    public function getFieldDelimiter()
     {
         return $this->field_delimiter;
     }
 
-    public function set_early_url_encoding($early_url_encoding)
+    public function setEarlyUrlEncoding($early_url_encoding)
     {
         $this->early_url_encoding = $early_url_encoding;
     }
 
-    public function get_early_url_encoding()
+    public function getEarlyUrlEncoding()
     {
         return $this->early_url_encoding;
+    }
+
+    protected function h2b($str)
+    {
+        $bin = '';
+        $i = 0;
+        do {
+            $bin .= chr(hexdec($str{$i}.$str{($i + 1)}));
+            $i += 2;
+        } while ($i < strlen($str));
+
+        return $bin;
+    }
+
+    public function generateToken()
+    {
+        // ASSUMES:($algorithm='sha256', $ip='', $start_time=null, $window=300, $acl=null, $acl_url="", $session_id="", $payload="", $salt="", $key="000000000000", $field_delimiter="~")
+        $m_token = $this->getIpField();
+        $m_token .= $this->getStartTimeField();
+        $m_token .= $this->getExprField();
+        $m_token .= $this->getAclField();
+        $m_token .= $this->getSessionIdField();
+        $m_token .= $this->getDataField();
+        $m_token_digest = (string) $m_token;
+        $m_token_digest .= $this->getUrlField();
+        $m_token_digest .= $this->getSaltField();
+
+        // produce the signature and append to the tokenized string
+        $signature = hash_hmac($this->getAlgorithm(), rtrim($m_token_digest, $this->getFieldDelimiter()), $this->h2b($this->getKey()));
+
+        return $m_token.'hmac='.$signature;
     }
 }
