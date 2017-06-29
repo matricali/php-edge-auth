@@ -30,7 +30,12 @@ class TokenAuth
     const ALGORITHM_SHA1 = 'sha1';
     const ALGORITHM_MD5 = 'md5';
 
-    protected $algorithm = 'SHA256';
+    protected $available_algorithms = array(
+        self::ALGORITHM_SHA256,
+        self::ALGORITHM_SHA1,
+        self::ALGORITHM_MD5
+    );
+    protected $algorithm = self::ALGORITHM_SHA256;
     protected $ip = '';
     protected $start_time = 0;
     protected $window = 300;
@@ -54,7 +59,7 @@ class TokenAuth
 
     public function setAlgorithm($algorithm)
     {
-        if (in_array($algorithm, array('sha256', 'sha1', 'md5'))) {
+        if (in_array($algorithm, $this->available_algorithms)) {
             $this->algorithm = $algorithm;
         } else {
             throw new ParameterException('Invalid algorithm, must be one of "sha256", "sha1" or "md5".');
@@ -305,7 +310,6 @@ class TokenAuth
 
     public function generateToken()
     {
-        // ASSUMES:($algorithm='sha256', $ip='', $start_time=null, $window=300, $acl=null, $acl_url="", $session_id="", $payload="", $salt="", $key="000000000000", $field_delimiter="~")
         $m_token = $this->getIpField();
         $m_token .= $this->getStartTimeField();
         $m_token .= $this->getExprField();
@@ -316,8 +320,11 @@ class TokenAuth
         $m_token_digest .= $this->getUrlField();
         $m_token_digest .= $this->getSaltField();
 
-        // produce the signature and append to the tokenized string
-        $signature = hash_hmac($this->getAlgorithm(), rtrim($m_token_digest, $this->getFieldDelimiter()), $this->h2b($this->getKey()));
+        $signature = hash_hmac(
+            $this->getAlgorithm(),
+            rtrim($m_token_digest, $this->getFieldDelimiter()),
+            $this->h2b($this->getKey())
+        );
 
         return $m_token.'hmac='.$signature;
     }
