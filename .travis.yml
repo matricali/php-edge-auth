@@ -9,9 +9,16 @@ php:
   - 7.0snapshot
   - 7.1
   - 7.1snapshot
-  - master
+  - 7.2
+  - 7.2snapshot
+  - nightly
 
 sudo: false
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - php: nightly
 
 before_install:
   - composer self-update
