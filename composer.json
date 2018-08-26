@@ -1,21 +1,18 @@
 {
     "name": "jorge-matricali/php-edge-auth",
-    "description": "Edge Auth token generator",
-    "keywords": ["edge", "auth", "security", "akamai"],
     "type": "library",
-    "require": {
-        "php": ">=5.3.3"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "~4.0",
-        "squizlabs/php_codesniffer": "~1.5",
-        "satooshi/php-coveralls": "~1.0"
-    },
-    "autoload": {
-        "classmap": [
-            "src/"
-        ]
-    },
+    "description": "Akamai Authorization Token for PHP",
+    "keywords": [
+        "akamai",
+        "edge-auth",
+        "edge",
+        "auth",
+        "security",
+        "authorization",
+        "token",
+        "authtoken",
+        "signed-url"
+    ],
     "license": "MIT",
     "authors": [
         {
@@ -23,6 +20,29 @@
             "email": "jorgematricali@gmail.com"
         }
     ],
+    "require": {
+        "php": ">=5.3.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0",
+        "squizlabs/php_codesniffer": "~1.5",
+        "satooshi/php-coveralls": "~1.0",
+        "phpdocumentor/phpdocumentor": "2.*",
+        "evert/phpdoc-md" : "~0.2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Matricali\\Security\\EdgeAuth\\": "src/EdgeAuth"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Matricali\\Security\\EdgeAuth\\Tests\\": "tests/EdgeAuth/Test"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
     "support": {
         "issues": "https://github.com/jorge-matricali/php-edge-auth/issues",
         "source": "https://github.com/jorge-matricali/php-edge-auth"
