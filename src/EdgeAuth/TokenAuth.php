@@ -27,9 +27,9 @@ namespace Matricali\Security\EdgeAuth;
  */
 class TokenAuth
 {
-    public const ALGORITHM_SHA256 = 'sha256';
-    public const ALGORITHM_SHA1 = 'sha1';
-    public const ALGORITHM_MD5 = 'md5';
+    const ALGORITHM_SHA256 = 'sha256';
+    const ALGORITHM_SHA1 = 'sha1';
+    const ALGORITHM_MD5 = 'md5';
 
     protected $available_algorithms = [
         self::ALGORITHM_SHA256,
