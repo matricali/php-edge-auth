@@ -1,0 +1,39 @@
+<?php
+
+$finder = PhpCsFixer\Finder::create()
+    ->notPath('app/cache')
+    ->notPath('container')
+    ->notPath('vendor')
+    ->in(__DIR__)
+    ->name('*.php')
+    ->notName('*.blade.php')
+    ->ignoreDotFiles(true)
+    ->ignoreVCS(true);
+
+return PhpCsFixer\Config::create()
+    ->setRules([
+        '@Symfony' => true,
+        '@PHP71Migration' => true,
+        'array_syntax' => ['syntax' => 'short'],
+        'heredoc_to_nowdoc' => true,
+        'linebreak_after_opening_tag' => true,
+        'no_multiline_whitespace_before_semicolons' => true,
+        'no_useless_else' => true,
+        'no_useless_return' => true,
+        'ordered_class_elements' => true,
+        'ordered_imports' => true,
+        'phpdoc_add_missing_param_annotation' => ['only_untyped' => false],
+        'phpdoc_order' => true,
+        'doctrine_annotation_braces' => true,
+        'doctrine_annotation_indentation' => true,
+        'doctrine_annotation_spaces' => true,
+        'no_short_echo_tag' => true,
+        'semicolon_after_instruction' => true,
+        'align_multiline_comment' => true,
+        'doctrine_annotation_array_assignment' => true,
+        'general_phpdoc_annotation_remove' => ['annotations' => ['package']],
+        'list_syntax' => ['syntax' => 'short'],
+        'phpdoc_types_order' => ['null_adjustment' => 'always_last'],
+        'single_line_comment_style' => true,
+    ])
+    ->setFinder($finder);
