@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-namespace JorgeMatricali\Security\EdgeAuth\Exceptions;
+namespace Matricali\Security\EdgeAuth;
 
-class ParameterException extends \Exception
+class InvalidArgumentException extends \InvalidArgumentException
 {
 }

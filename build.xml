@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="php-edge-auth" default="setup">
+<project name="php-edge-auth" default="build">
     <target name="setup" depends="clean,composer"/>
+    <target name="build" depends="clean,composer,tests,docs" />
 
     <target name="clean" description="Cleanup build artifacts">
         <delete dir="${basedir}/vendor"/>
@@ -16,6 +17,21 @@
             <arg value="--no-suggest"/>
             <arg value="--optimize-autoloader"/>
             <arg value="--prefer-stable"/>
+        </exec>
+    </target>
+
+    <target name="tests" description="Run unit tests with phpUnit">
+        <exec executable="${basedir}/vendor/bin/phpunit" taskname="phpunit">
+        </exec>
+    </target>
+
+    <target name="docs" description="Build docs with phpDocumentor">
+        <exec executable="${basedir}/vendor/bin/phpdoc" taskname="phpdoc">
+        </exec>
+        <mkdir dir="${basedir}/build/docs/markdown" />
+        <exec executable="${basedir}/vendor/bin/phpdocmd" taskname="phpdocmd">
+            <arg value="${basedir}/build/docs/structure.xml"/>
+            <arg value="${basedir}/build/docs/markdown"/>
         </exec>
     </target>
 </project>
