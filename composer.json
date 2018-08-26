@@ -1,5 +1,5 @@
 {
-    "name": "jorge-matricali/php-edge-auth",
+    "name": "jorge-matricali/akamai-token-auth",
     "type": "library",
     "description": "Akamai Authorization Token for PHP",
     "keywords": [
