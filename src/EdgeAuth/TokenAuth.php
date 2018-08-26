@@ -20,21 +20,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-namespace JorgeMatricali\Security\EdgeAuth;
+namespace Matricali\Security\EdgeAuth;
 
-use JorgeMatricali\Security\EdgeAuth\Exceptions\ParameterException;
-
+/**
+ * [TokenAuth description].
+ */
 class TokenAuth
 {
-    const ALGORITHM_SHA256 = 'sha256';
-    const ALGORITHM_SHA1 = 'sha1';
-    const ALGORITHM_MD5 = 'md5';
+    public const ALGORITHM_SHA256 = 'sha256';
+    public const ALGORITHM_SHA1 = 'sha1';
+    public const ALGORITHM_MD5 = 'md5';
 
-    protected $available_algorithms = array(
+    protected $available_algorithms = [
         self::ALGORITHM_SHA256,
         self::ALGORITHM_SHA1,
-        self::ALGORITHM_MD5
-    );
+        self::ALGORITHM_MD5,
+    ];
+
     protected $algorithm = self::ALGORITHM_SHA256;
     protected $ip = '';
     protected $start_time = 0;
@@ -48,13 +50,10 @@ class TokenAuth
     protected $field_delimiter = '~';
     protected $early_url_encoding = false;
 
-    protected function encode($val)
+    public function __construct($key, $algorithm = self::ALGORITHM_SHA256)
     {
-        if ($this->early_url_encoding === true) {
-            return rawurlencode($val);
-        }
-
-        return $val;
+        $this->setKey($key);
+        $this->setAlgorithm($algorithm);
     }
 
     public function setAlgorithm($algorithm)
@@ -62,7 +61,9 @@ class TokenAuth
         if (in_array($algorithm, $this->available_algorithms)) {
             $this->algorithm = $algorithm;
         } else {
-            throw new ParameterException('Invalid algorithm, must be one of "sha256", "sha1" or "md5".');
+            throw new InvalidArgumentException(
+                'Invalid algorithm, must be one of "sha256", "sha1" or "md5".'
+            );
         }
     }
 
@@ -74,7 +75,9 @@ class TokenAuth
     public function setIp($ip)
     {
         if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-            throw new ParameterException('Invalid IP, must be a valid IPv4 or IPv4 address.');
+            throw new InvalidArgumentException(
+                'Invalid IP, must be a valid IPv4 or IPv6 address.'
+            );
         }
         $this->ip = $ip;
     }
@@ -86,7 +89,7 @@ class TokenAuth
 
     public function getIpField()
     {
-        if ($this->ip != '') {
+        if ('' != $this->ip) {
             return 'ip='.$this->ip.$this->field_delimiter;
         }
 
@@ -96,13 +99,16 @@ class TokenAuth
     public function setStartTime($start_time)
     {
         // verify starttime is sane
-        if (strcasecmp($start_time, 'now') == 0) {
+        if (0 == strcasecmp($start_time, 'now')) {
             $this->start_time = time();
         } else {
-            if (is_numeric($start_time) && $start_time > 0 && $start_time < 4294967295) {
-                $this->start_time = 0 + $start_time; // faster then intval
+            if (is_numeric($start_time) && $start_time > 0 &&
+                $start_time < 4294967295) {
+                $this->start_time = 0 + $start_time; // faster than intval
             } else {
-                throw new ParameterException('start time input invalid or out of range');
+                throw new InvalidArgumentException(
+                    'Start time input invalid or out of range.'
+                );
             }
         }
     }
@@ -112,30 +118,22 @@ class TokenAuth
         return $this->start_time;
     }
 
-    protected function getStartTimeValue()
-    {
-        if ($this->start_time > 0) {
-            return $this->start_time;
-        } else {
-            return time();
-        }
-    }
-
     public function getStartTimeField()
     {
-        if (is_numeric($this->start_time) && $this->start_time > 0 && $this->start_time < 4294967295) {
+        if (is_numeric($this->start_time) && $this->start_time > 0 &&
+            $this->start_time < 4294967295) {
             return 'st='.$this->getStartTimeValue().$this->field_delimiter;
-        } else {
-            return '';
         }
+
+        return '';
     }
 
     public function setWindow($window)
     {
         if (is_numeric($window) && $window > 0) {
-            $this->window = 0 + $window; // Faster then intval()
+            $this->window = 0 + $window; // faster than intval()
         } else {
-            throw new ParameterException('Invalid window value.');
+            throw new InvalidArgumentException('Invalid window value.');
         }
     }
 
@@ -146,13 +144,16 @@ class TokenAuth
 
     public function getExprField()
     {
-        return 'exp='.($this->getStartTimeValue() + $this->window).$this->field_delimiter;
+        return 'exp='.($this->getStartTimeValue() + $this->window).
+            $this->field_delimiter;
     }
 
     public function setAcl($acl)
     {
-        if ($this->url != '') {
-            throw new ParameterException('Cannot set both an ACL and a URL at the same time.');
+        if ('' != $this->url) {
+            throw new InvalidArgumentException(
+                'Cannot set both an ACL and a URL at the same time.'
+            );
         }
         $this->acl = $acl;
     }
@@ -177,7 +178,9 @@ class TokenAuth
     public function setUrl($url)
     {
         if ($this->acl) {
-            throw new ParameterException('Cannot set both an ACL and a URL at the same time.');
+            throw new InvalidArgumentException(
+                'Cannot set both an ACL and a URL at the same time.'
+            );
         }
         $this->url = $url;
     }
@@ -199,7 +202,9 @@ class TokenAuth
     public function setSessionId($session_id)
     {
         if (!is_string($session_id) && !is_numeric($session_id)) {
-            throw new ParameterException('Invalid session_id value. Must be an string.');
+            throw new InvalidArgumentException(
+                'Invalid session_id value. Must be an string.'
+            );
         }
         $this->session_id = $session_id;
     }
@@ -221,7 +226,9 @@ class TokenAuth
     public function setData($data)
     {
         if (!is_string($data) && !is_numeric($data)) {
-            throw new ParameterException('Invalid data value. Must be an string.');
+            throw new InvalidArgumentException(
+                'Invalid data value. Must be an string.'
+            );
         }
         $this->data = $data;
     }
@@ -243,7 +250,9 @@ class TokenAuth
     public function setSalt($salt)
     {
         if (!is_string($salt) && !is_numeric($salt)) {
-            throw new ParameterException('Invalid salt value. Must be an string.');
+            throw new InvalidArgumentException(
+                'Invalid salt value. Must be an string.'
+            );
         }
         $this->salt = $salt;
     }
@@ -264,10 +273,12 @@ class TokenAuth
 
     public function setKey($key)
     {
-        if (preg_match('/^[a-fA-F0-9]+$/', $key) && (strlen($key) % 2) == 0) {
+        if (preg_match('/^[a-fA-F0-9]+$/', $key) && 0 == (strlen($key) % 2)) {
             $this->key = $key;
         } else {
-            throw new ParameterException('Key must be a hex string (a-f, 0-9 and even number of chars).');
+            throw new InvalidArgumentException(
+                'Key must be a hex string (a-f, 0-9 and even number of chars).'
+            );
         }
     }
 
@@ -296,18 +307,6 @@ class TokenAuth
         return $this->early_url_encoding;
     }
 
-    protected function h2b($str)
-    {
-        $bin = '';
-        $i = 0;
-        do {
-            $bin .= chr(hexdec($str{$i}.$str{($i + 1)}));
-            $i += 2;
-        } while ($i < strlen($str));
-
-        return $bin;
-    }
-
     public function generateToken()
     {
         $m_token = $this->getIpField();
@@ -327,5 +326,35 @@ class TokenAuth
         );
 
         return $m_token.'hmac='.$signature;
+    }
+
+    protected function encode($val)
+    {
+        if (true === $this->early_url_encoding) {
+            return rawurlencode($val);
+        }
+
+        return $val;
+    }
+
+    protected function getStartTimeValue()
+    {
+        if ($this->start_time > 0) {
+            return $this->start_time;
+        }
+
+        return time();
+    }
+
+    protected function h2b($str)
+    {
+        $bin = '';
+        $i = 0;
+        do {
+            $bin .= chr(hexdec($str[$i].$str[($i + 1)]));
+            $i += 2;
+        } while ($i < strlen($str));
+
+        return $bin;
     }
 }
