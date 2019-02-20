@@ -1,7 +1,7 @@
 {
-    "name": "jorge-matricali/akamai-token-auth",
+    "name": "matricali/akamai-token-auth",
     "type": "library",
-    "description": "Akamai Authorization Token for PHP",
+    "description": "This library provides necessary logic to generate Akamai edge authorization token and signed URL.",
     "keywords": [
         "akamai",
         "edge-auth",
@@ -11,7 +11,8 @@
         "authorization",
         "token",
         "authtoken",
-        "signed-url"
+        "signed-url",
+        "securehd"
     ],
     "license": "MIT",
     "authors": [
@@ -44,7 +45,7 @@
         "test": "phpunit"
     },
     "support": {
-        "issues": "https://github.com/jorge-matricali/php-edge-auth/issues",
-        "source": "https://github.com/jorge-matricali/php-edge-auth"
+        "issues": "https://github.com/matricali/php-edge-auth/issues",
+        "source": "https://github.com/matricali/php-edge-auth"
     }
 }
