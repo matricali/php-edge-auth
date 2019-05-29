@@ -13,7 +13,7 @@ You can configure it in the Property Manager at https://control.akamai.com.
 
 ### Installation
 ```
-composer require matricali/akamai-token-auth
+composer require jorge-matricali/akamai-token-auth
 ```
 
 ### Usage
